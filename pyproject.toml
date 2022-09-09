@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "twig-research"
+version = "0.1.0"
+description = ""
+authors = ["tch1001 <tanchienhao@gmail.com>"]
+readme = "README.md"
+packages = [{include = "twig_research"}]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+Flask = "^2.2.2"
+python-dotenv = "^0.21.0"
+requests-html = "^0.10.0"
+pymongo = "^4.2.0"
+Scrapy = "^2.6.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
