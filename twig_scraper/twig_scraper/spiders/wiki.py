@@ -1,9 +1,15 @@
+from curses import meta
 import scrapy
 
 class WikiSpider(scrapy.Spider):
     name = 'wiki'
     start_urls = ['https://en.wikipedia.org/wiki/Quantum_field_theory']
     allowed_domains = ["en.wikipedia.org"]
+
+    custom_settings = {
+        'DEPTH_LIMIT': 10,
+        'DEPTH_PRIORITY': 1
+    }
 
     def __init__(self):
         self.state = {}
@@ -15,14 +21,15 @@ class WikiSpider(scrapy.Spider):
         if(title):
             yield {
                 'title': title,
-                'url': response.url
+                'url': response.url,
+                'from': response.meta.get('from')
             }
         else:
             return
-        if('count' in self.state):
-            self.state['count'] += 1
-        else:
-            self.state['count'] = 1
-        if(self.state['count'] > 10):
-            return
-        yield from response.follow_all(css='a::attr(href)', callback=self.parse)
+        yield from  response.follow_all(
+                        css='a::attr(href)', 
+                        callback=self.parse, 
+                        meta = {
+                            'from': response.url
+                        }
+                    )
