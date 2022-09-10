@@ -27,14 +27,6 @@ class TwigScraperPipeline:
         self.conn.verify_connectivity()
         print("verified neo4j connection")
     def process_item(self, item, spider):
-        with self.conn.session() as session:
-            queryStr = f"MERGE (n:Site {{ url: $url, title: $title }})"
-            session.run(queryStr, {'title': item['title'], 'url': item['url']})
-            if(item['from']):
-                queryStr = f"MATCH (a:Site),(b:Site)\
-                        WHERE a.url = $from_url AND b.url = $to_url\
-                            MERGE (a)-[e:Reference]->(b)"
-                session.run(queryStr, {'from_url': item['from'], 'to_url': item['url']})
         return item
     def close_spider(self, spider):
         self.conn.close()
