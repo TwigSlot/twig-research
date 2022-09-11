@@ -6,7 +6,7 @@ load_dotenv()
 app = Flask(__name__)
 
 @app.route('/', methods=["GET"])
-def link(): # he
+def link(): 
     url : str = request.args.get('url')
     if(url is None):
         return "pass me a link!", 200

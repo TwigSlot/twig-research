@@ -23,6 +23,7 @@ spec:
               secretKeyRef:
                 name: autofill-secret
                 key: MONGO_URL
+                optional: false
 ---
 apiVersion: v1
 kind: Service
@@ -30,7 +31,7 @@ metadata:
   name: autofill-service
 spec:
   selector:
-    app: flask-pod
+    app: autofill-pod
   ports:
     - protocol: TCP
       port: 5000
