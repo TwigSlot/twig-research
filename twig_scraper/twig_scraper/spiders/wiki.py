@@ -51,8 +51,8 @@ class WikiSpider(scrapy.Spider):
                 queryStr = f"MERGE (n:Site {{ url: $url, title: $title }})" 
                 session.run(queryStr, {'title': item['title'], 'url': item['from']})
                 # create edge
-                queryStr = f"MATCH (a:Site),(b:Site)\
-                        WHERE a.url = $from_url AND b.url = $to_url\
+                queryStr =  f"MATCH (a:Site),(b:Site)\
+                            WHERE a.url = $from_url AND b.url = $to_url\
                             MERGE (a)-[e:Reference]->(b)"
                 session.run(queryStr, {'from_url': item['from'], 'to_url': item['url']})
  
