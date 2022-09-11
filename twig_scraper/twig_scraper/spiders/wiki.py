@@ -3,11 +3,13 @@ from scrapy.http.response import Response, Request
 from dotenv import load_dotenv
 import os
 from neo4j import GraphDatabase, Neo4jDriver
+from scrapy.linkextractors import LinkExtractor
 
 class WikiSpider(scrapy.Spider):
     name = 'wiki'
     start_urls = ['https://en.wikipedia.org/wiki/Quantum_field_theory']
     allowed_domains = ["en.wikipedia.org"]
+    le = LinkExtractor()
 
     custom_settings = {
         'DEPTH_LIMIT': 10,
@@ -35,9 +37,10 @@ class WikiSpider(scrapy.Spider):
         title = response.css('span.mw-page-title-main::text').get()
         if(title is None):
             title = response.css('h1.firstHeading::text').get()
-        for url in response.css('a::attr(href)').getall():
+        for link in self.le.extract_links(response):
+            url = link.url
             item = {
-                'title': title,
+                'title': title, # current title
                 'from': response.url, # from current
                 'url': url # to new
             }
@@ -46,7 +49,7 @@ class WikiSpider(scrapy.Spider):
             with self.conn.session() as session:
                 # create node
                 queryStr = f"MERGE (n:Site {{ url: $url, title: $title }})" 
-                session.run(queryStr, {'title': item['title'], 'url': item['url']})
+                session.run(queryStr, {'title': item['title'], 'url': item['from']})
                 # create edge
                 queryStr = f"MATCH (a:Site),(b:Site)\
                         WHERE a.url = $from_url AND b.url = $to_url\
@@ -54,8 +57,8 @@ class WikiSpider(scrapy.Spider):
                 session.run(queryStr, {'from_url': item['from'], 'to_url': item['url']})
  
             yield response.follow(
-                        url=url,
-                        callback=self.parse, 
+                        url = url,
+                        callback = self.parse, 
                     )
     
     def close_spider(self):
