@@ -6,9 +6,11 @@ load_dotenv()
 app = Flask(__name__)
 
 @app.route('/', methods=["GET"])
-def link(): # he
+def link(): 
     url : str = request.args.get('url')
-    print(url)
+    if(url is None):
+        return "pass me a link!", 200
+    app.logger.info(url)
     if('en.wikipedia.org' in url):
         return Wiki(url).getJSONString()
     elif('arxiv.org' in url):
