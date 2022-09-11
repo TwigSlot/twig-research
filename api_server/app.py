@@ -1,9 +1,11 @@
 from flask import Flask, request
+from flask_cors import CORS
 
 from api_server.skeleton import Wiki, ArXiv, Medium, Website
 from dotenv import load_dotenv
 load_dotenv()
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/', methods=["GET"])
 def link(): 

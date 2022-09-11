@@ -1,0 +1,10 @@
+services:
+  autofill:
+    build:
+      dockerfile: ./api_server/Dockerfile
+      context: .
+    image: autofill_server:latest
+    env_file:
+      - .env
+    ports:
+      - "5001:5000"
