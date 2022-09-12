@@ -1,7 +1,7 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
-  name: middleware-stripprefix
+  name: middleware-stripprefix-autofill
 spec:
   stripPrefix:
     prefixes:
@@ -19,7 +19,7 @@ spec:
     - match: Host(`twig.tchlabs.net`) && PathPrefix(`/autofill`)
       kind: Rule
       middlewares:
-        - name: middleware-stripprefix
+        - name: middleware-stripprefix-autofill
       services:
         - name: autofill-service
           port: 5000
