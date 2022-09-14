@@ -1,0 +1,12 @@
+services:
+  autofill:
+    environment:
+      - FLASK_APP=server.py
+    entrypoint: 
+      # - sleep
+      # - infinity
+      - flask
+      - --debug
+      - run
+      - --host=0.0.0.0
+    volumes: ['.:/app']
