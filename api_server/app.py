@@ -1,7 +1,7 @@
 from flask import Flask, request
 from flask_cors import CORS
 
-from api_server.skeleton import Wiki, ArXiv, Medium, Website
+from api_server.skeleton import Wiki, ArXiv, Medium, Website, Youtube
 from dotenv import load_dotenv
 load_dotenv()
 app = Flask(__name__)
@@ -19,6 +19,8 @@ def link():
         return ArXiv(url).getJSONString()
     elif('medium.com' in url):
         return Medium(url).getJSONString()
+    elif('youtube.com/watch?v=' in url or 'youtu.be' in url):
+        return Youtube(url).getJSONString()
     else:
         return Website(url).getJSONString()
 

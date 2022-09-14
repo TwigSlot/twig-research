@@ -1,11 +1,12 @@
 # from bs4 import BeautifulSoup
 from requests_html import HTMLSession
 import json
-from dotenv import dotenv_values
+from dotenv import load_dotenv
 import os
 from pymongo import MongoClient
+import api_server.app as app
 
-dotenv_values(".env")
+load_dotenv()
 client = MongoClient(os.environ.get("MONGO_URL"))
 infoDB, infoCollection = None, None
 try:
@@ -69,7 +70,30 @@ class Website:
         session = HTMLSession()
         response = session.get(self.url)
         return response.html
-        
+
+class Youtube(Website):
+    def __init__(self, url):
+        self.apiKey : str = os.environ.get('YOUTUBE_API_KEY')
+        if('youtube.com/watch?v=' in url):
+            self.video_id : str = url.split('?v=')[1].split('&')[0].replace('&','')
+        elif('youtu.be' in url):
+            self.video_id : str = url.split('/')[-1]
+        app.app.logger.info(self.video_id)
+        super().__init__(url)
+    def getJSON(self):
+        query = f"https://www.googleapis.com/youtube/v3/videos?"+\
+                f"id={self.video_id}&key={self.apiKey}&part=snippet"
+        app.app.logger.info(query)
+        session = HTMLSession()
+        response = session.get(query)
+        snippet = (json.loads(response.text)['items'][0]['snippet'])
+        return {'title': snippet['title'],
+             'url': self.url,
+             'summary': snippet['description']}
+    def getJSONString(self):
+        info = self.getJSON()
+        return json.dumps(info)
+
 class Wiki(Website):
     def __init__(self, url):
         url = url.split('#')[0]
