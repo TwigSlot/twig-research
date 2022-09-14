@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: autofill-container
-        image: tch1001/autofill_server:v1.0
+        image: tch1001/autofill_server:latest
         ports:
         - containerPort: 5000
         env:
