@@ -70,8 +70,14 @@ class Website:
         session = HTMLSession()
         response = session.get(self.url)
         return response.html
-
 class Youtube(Website):
+    @classmethod
+    def extract_data_from_snippet(cls, snippet, url):
+        return {
+            'title': snippet['title'],
+            'url': url,
+            'summary': snippet['description']
+        }
     def __init__(self, url):
         self.apiKey : str = os.environ.get('YOUTUBE_API_KEY')
         if('youtube.com/watch?v=' in url):
@@ -87,9 +93,41 @@ class Youtube(Website):
         session = HTMLSession()
         response = session.get(query)
         snippet = (json.loads(response.text)['items'][0]['snippet'])
-        return {'title': snippet['title'],
-             'url': self.url,
-             'summary': snippet['description']}
+        return Youtube.extract_data_from_snippet(snippet, self.url)
+    def getJSONString(self):
+        info = self.getJSON()
+        return json.dumps(info)
+class YoutubePlaylist(Website):
+    def __init__(self, url):
+        self.apiKey : str = os.environ.get('YOUTUBE_API_KEY')
+        if('youtube.com/playlist' in url):
+            self.playlist_id : str = url.split('list=')[1].split('&')[0].replace('&','')
+        super().__init__(url)
+    def getJSON(self):
+        orig_query = f"https://www.googleapis.com/youtube/v3/playlistItems?"+\
+                f"part=snippet&key={self.apiKey}&maxResults=5&playlistId={self.playlist_id}"
+        query = orig_query
+        done = False
+        video_ids = []
+        page_token = None
+        while(not done):
+            session = HTMLSession()
+            if page_token is not None:
+                query = orig_query + f"&pageToken={page_token}"
+            response = session.get(query)
+            data = json.loads(response.text)
+            rpp = int(data['pageInfo']['resultsPerPage'])
+            tr = int(data['pageInfo']['totalResults'])
+            for i in data['items']:
+                video_ids.append(
+                    Youtube.extract_data_from_snippet( i['snippet'], 
+                    f"https://youtu.be/{i['snippet']['resourceId']['videoId']}")
+                )
+            if(rpp < tr and 'nextPageToken' in data):
+                page_token = data['nextPageToken']
+            else:
+                break
+        return video_ids
     def getJSONString(self):
         info = self.getJSON()
         return json.dumps(info)
