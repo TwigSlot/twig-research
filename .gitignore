@@ -171,3 +171,4 @@ cython_debug/
 
 # my own
 kubernetes/secrets/*
+twig_scraper/outputs/*
