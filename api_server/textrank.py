@@ -1,3 +1,4 @@
+from typing import List
 import spacy
 import pytextrank
 
@@ -12,16 +13,19 @@ class Summariser:
     nlp.add_pipe('textrank')
     def __init__(self, text):
         self.text = text
-    def keywords(self):
-        self.doc = Summariser.nlp(self.text)
+    @classmethod
+    def clean_keyword(cls, phrase):
+        if(len(phrase) < 2): return ''
+        if(phrase[0] == '[' and phrase[-1] == ']'): return ''
+        return phrase
+    @classmethod
+    def remove_duplicates(self, stuff: List[str])->List[str]:
         d = {}
-        cnt = 0
-        for i in self.doc._.phrases:
-            l = i.text.lower()
-            print(l)
+        for i in stuff:
+            l = i.lower()
             if(l in d): continue
             d[l] = ''
-            cnt+=1
-            if(cnt > 50): break
         return list(d.keys())
-        # remove duplicates
+    def keywords(self):
+        self.doc = Summariser.nlp(self.text)
+        return Summariser.remove_duplicates([x.text for x in self.doc._.phrases[:50]])

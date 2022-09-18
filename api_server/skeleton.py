@@ -37,13 +37,18 @@ class Website:
             self.paragraphs = info['paragraphs']
             return
         self.html = self.render()
-        print(self.getKeywords())
+        for x in self.getKeywords():
+            print(x)
         print('eh')
     def getURL(self):
         return self.url
+
     def getKeywords(self):
         self.text = '\n'.join([x.text for x in self.html.find('p')])
-        return Summariser(self.text).keywords()
+        textrank_keywords = [Summariser.clean_keyword(x) for x in Summariser(self.text).keywords()]
+        link_keywords = [Summariser.clean_keyword(x.text) for x in self.html.find('a')]
+        all_keywords = Summariser.remove_duplicates(textrank_keywords)
+        return [x for x in all_keywords if x != '']
     def getTitle(self): 
         if(self.title == None):
             try:
