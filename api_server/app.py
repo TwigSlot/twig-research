@@ -25,7 +25,9 @@ def link():
         return YoutubePlaylist(url).getJSONString()
     else:
         return Website(url).getJSONString()
-
+@app.route('/keywords', methods=["GET"])
+def keywords():
+    request.data
 
 def create_app(test_config=None):
     if test_config is not None:

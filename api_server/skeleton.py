@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 import os
 from pymongo import MongoClient
 import api_server.app as app
+from api_server.textrank import Summariser
 
 load_dotenv()
 client = MongoClient(os.environ.get("MONGO_URL"))
@@ -27,7 +28,7 @@ class Website:
         # try to retrieve info from database
         info = None
         if(infoCollection != None): info = infoCollection.find_one({'url':self.url})
-        if(info): 
+        if(info and False): 
             self.saved = True
             self.title = info['title']
             self.url = info['url']
@@ -36,8 +37,13 @@ class Website:
             self.paragraphs = info['paragraphs']
             return
         self.html = self.render()
+        print(self.getKeywords())
+        print('eh')
     def getURL(self):
         return self.url
+    def getKeywords(self):
+        self.text = '\n'.join([x.text for x in self.html.find('p')])
+        return Summariser(self.text).keywords()
     def getTitle(self): 
         if(self.title == None):
             try:

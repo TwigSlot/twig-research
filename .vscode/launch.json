@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python: Flask",
+            "name": "debug-project",
             "type": "python",
             "request": "launch",
             "module": "flask",
@@ -15,8 +15,7 @@
             },
             "args": [
                 "run",
-                "--no-debugger",
-                "--no-reload"
+                "--port", "5002"
             ],
             "jinja": true,
             "justMyCode": true

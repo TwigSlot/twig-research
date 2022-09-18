@@ -6,15 +6,21 @@ authors = ["tch1001 <tanchienhao@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.8,<3.12"
 Flask = "^2.2.2"
 python-dotenv = "^0.21.0"
 requests-html = "^0.10.0"
 pymongo = "^4.2.0"
 Scrapy = "^2.6.2"
 Flask-Cors = "^3.0.10"
+scipy = "^1.9.1"
+pytextrank = "^3.2.4"
+spacy = "^3.4.1"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+debug-project = "api_server.app:create_app"
