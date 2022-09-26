@@ -2,7 +2,7 @@ from pdfminer.high_level import extract_pages
 from pdfminer.layout import LTTextContainer, LTChar,LTLine,LAParams
 from collections import defaultdict
 d=defaultdict(int)
-PDF_file = open('pig.pdf', 'rb')
+PDF_file = open('./pdf_research/test_pdfs/example.pdf', 'rb')
 
 for page_layout in extract_pages(PDF_file):
     for element in page_layout:
