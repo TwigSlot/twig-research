@@ -2,19 +2,25 @@ from pdfminer.high_level import extract_pages
 from pdfminer.layout import LTTextContainer, LTChar,LTLine,LAParams
 from collections import defaultdict
 d=defaultdict(int)
+fonts = defaultdict(str)
 PDF_file = open('./pdf_research/test_pdfs/example.pdf', 'rb')
 
 for page_layout in extract_pages(PDF_file):
     for element in page_layout:
         if isinstance(element, LTTextContainer):
             for text_line in element:
+                line_fonts = defaultdict(str)
                 try:
                     for character in text_line:
                         if isinstance(character, LTChar):
                             Font_size=character.size
-                            d[round(character.size)]+=1
+                            Font_size = round(character.size)
+                            line_fonts[(Font_size, character.fontname)] += character._text
                 except:
                     continue
+                for ((size, font), text) in line_fonts.items():
+                    d[size] += len(text)
+                    fonts[(size,font)] += text + "\n"
 mostcommonfontsize=-1
 localMax=0
 #this dict stores the value of the font and number of chars with font 
@@ -25,6 +31,7 @@ for key in d.keys():
 sortedkeys=sorted([key for key in d.keys()])
 sortedkeys=sortedkeys[::-1]
 print(d)
+print(fonts)
 for page_layout in extract_pages(PDF_file):
     for element in page_layout:
         if isinstance(element, LTTextContainer):
