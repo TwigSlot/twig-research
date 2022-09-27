@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: autofill-container
-        image: tch1001/autofill_server:latest
+        image: tch1001/autofill_server:v1.1
         ports:
         - containerPort: 5000
         env:
@@ -23,6 +23,12 @@ spec:
               secretKeyRef:
                 name: autofill-secret
                 key: MONGO_URL
+                optional: false
+          - name: YOUTUBE_API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: autofill-secret
+                key: YOUTUBE_API_KEY
                 optional: false
 ---
 apiVersion: v1

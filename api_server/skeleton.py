@@ -13,7 +13,7 @@ try:
     infoDB = client['info-db']
     infoCollection = infoDB['info-collection']
 except:
-    print("cannot connect to DB")
+    app.app.logger.info('connection error')
 
 
 class Website:
@@ -26,7 +26,8 @@ class Website:
         self.saved = False
         # try to retrieve info from database
         info = None
-        if(infoCollection != None): info = infoCollection.find_one({'url':self.url})
+        # if(infoCollection != None): 
+        #     info = infoCollection.find_one({'url':self.url})
         if(info): 
             self.saved = True
             self.title = info['title']
@@ -104,7 +105,7 @@ class Wiki(Website):
             self.save()
     def save(self):
         self.saved = True
-        if(infoCollection != None): infoCollection.insert_one(self.exportToDB())
+        # if(infoCollection != None): infoCollection.insert_one(self.exportToDB())
     def exportToDB(self):
         return {'title': self.getTitle(),
              'url': self.getURL(),
@@ -184,8 +185,9 @@ class Medium(Website):
             # save() generates json for the first time
             self.save()
     def save(self):
-        self.saved = True
-        if(infoCollection != None): infoCollection.insert_one(self.exportToDB())
+        pass
+        # self.saved = True
+        # if(infoCollection != None): infoCollection.insert_one(self.exportToDB())
     def exportToDB(self):
         return {'title': self.getTitle(),
              'url': self.getURL(),
