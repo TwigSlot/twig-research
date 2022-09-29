@@ -4,17 +4,19 @@ from collections import defaultdict
 
 from pdfminer.pdfparser import PDFParser
 from pdfminer.pdfdocument import PDFDocument
+import fitz
 
+import pickle
 
 d=defaultdict(int)
 fonts = defaultdict(str)
-path = "pdf_research/test_pdfs/example.pdf"
+path = "pdf_research/test_pdfs/a16f4de62b51d42f71ace807b62ba31e6adbf5ef9719981f9178912cc6566477.pdf"
 PDF_file = open(path, 'rb')
 
 parser = PDFParser(PDF_file)
 document = PDFDocument(parser)
 try:
-    print(list(document.get_outlines())) # TODO for caterpillar
+    # print(list(document.get_outlines())) # TODO for caterpillar
     """
     for your ref,
     https://stackoverflow.com/questions/51436686/extract-text-from-pdf-table-of-contents-ignoring-page-and-indexing-numbers
@@ -42,9 +44,33 @@ except:
 
 doc = []
 
-cur_text_block = ""
-cur_text_block_size_and_font = (None, None)
+class TextBlock:
+    def __init__(self, font, text, text_lines, page):
+        self.font_size = font[0]
+        self.fontname = font[1]
+        self.text = text
+        if(len(text_lines) > 0):
+            self.page = page
+            self.x0 = min([tl.x0 for tl in text_lines])
+            self.x1 = max([tl.x1 for tl in text_lines])
+            self.y0 = min([tl.y0 for tl in text_lines])
+            self.y1 = max([tl.y1 for tl in text_lines])
+        else:
+            self.page = -1
+            self.x0 = 0
+            self.x1 = 0
+            self.y0 = 0
+            self.y1 = 0
+    def drawRect(self, fitz_doc: fitz.Document):
+        if(self.page == -1): return
+        height = fitz_doc.load_page(self.page-1).rect[3]
+        fitz_doc[self.page-1].draw_rect([self.x0, height-self.y1, self.x1, height-self.y0],
+            color = (0,1,0), width = 2)
+
 for page_layout in extract_pages(PDF_file):
+    cur_text_block = ""
+    cur_text_block_size_and_font = (None, None)
+    cur_text_block_text_line = []
     for element in page_layout:
         if isinstance(element, LTTextContainer):
             prev_line = None
@@ -62,22 +88,51 @@ for page_layout in extract_pages(PDF_file):
                         prev_char = character
                 except:
                     continue
+                # take the most common size and fontname
                 line_fonts = sorted(list(line_fonts.items()), key = lambda x : len(x[1]))
                 if(cur_text_block_size_and_font is not None):
+                    # compare it with the previous line
+                    # part of the same textblock if same as prev line
                     if(line_fonts[0][0] == cur_text_block_size_and_font):
-                        cur_text_block += line_fonts[0][1]
+                        cur_text_block += text_line.get_text()
+                        cur_text_block_text_line.append(text_line)
+                    # start a new textblock
                     else:
-                        doc.append([cur_text_block_size_and_font, cur_text_block])
+                        doc.append(
+                            TextBlock(
+                                cur_text_block_size_and_font, 
+                                cur_text_block,
+                                cur_text_block_text_line,
+                                page = page_layout.pageid
+                            )
+                        )
                         cur_text_block_size_and_font = line_fonts[0][0]
                         cur_text_block = line_fonts[0][1]
+                        cur_text_block_text_line = [text_line]
                 for ((size, font), text) in line_fonts:
                     d[size] += len(text)
                     fonts[(size,font)] += text + " "
+    doc.append(
+        TextBlock(
+            cur_text_block_size_and_font, 
+            cur_text_block,
+            cur_text_block_text_line,
+            page = page_layout.pageid
+        )
+    ) 
+fitz_doc = fitz.open(PDF_file)
 for x in range(len(doc)):
-    doc[x][1] = doc[x][1].replace('-\n', '')\
+    doc[x].text = doc[x].text.replace('-\n', '')\
                 .replace('\n', ' ')\
                 .replace(u'\xa0', u' ')
+for x in range(len(doc)):
+    doc[x].drawRect(fitz_doc)
+fitz_doc.save(path.replace('.pdf', '_v2.pdf'))
+with open(path.replace('.pdf', '.pickle'), 'wb') as save_file:
+    pickle.dump(doc, save_file)
+
 print(doc) # decent segmentation of content based on font sizes (no ML needed)
+exit()
 
 mostcommonfontsize=-1
 localMax=0
