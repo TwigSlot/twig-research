@@ -2,6 +2,7 @@ import sys
 import os
 import pickle
 from extract_textblock import extract
+import fitz
 
 if(len(sys.argv) < 2):
     print("usage: python labeller.py <pdf_filename>")
@@ -21,10 +22,17 @@ if(os.path.exists(pickle_filename)):
         doc = pickle.load(f)
 if(doc is None):
     with open(path, 'rb') as f:
+        print("extracting pdf contents...")
         doc = extract(f)
+        fitz_doc = fitz.open(f)
+        for i in doc:
+            i.drawRect(fitz_doc)
+        fitz_doc.save(path.replace('.pdf', '_annotated.pdf'))
+        print("saved annotated pdf")
     with open(pickle_filename, 'wb') as f:
         pickle.dump(doc, f)
 
+input("press enter > ")
 tb_idx = 0
 search_phrase = ""
 while True:
@@ -49,6 +57,7 @@ while True:
         save: save progress
         q: quit
         z: jump to latest
+        e: expand text
         r: relabel
         """)
         input("press enter > ")
@@ -63,6 +72,10 @@ while True:
         with open(pickle_filename, 'wb') as f:
             pickle.dump(doc, f)
         print(f"saved to {pickle_filename}")
+        input("press enter > ")
+        continue
+    if(cmd[0] == 'e'):
+        print(doc[tb_idx].text)
         input("press enter > ")
         continue
     if(cmd[0] == 'j'):
