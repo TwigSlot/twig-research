@@ -6,11 +6,11 @@ import csv
 from extract_textblock import TextBlock
 
 if 'pdf_research' in os.getcwd():
-    path = 'test_pdfs/'
+    path = './Classifiers/'
 else:
-    path = 'pdf_research/test_pdfs/'
+    path = 'pdf_research/Classifiers/'
 
-with open(path+'train.csv', 'w') as csv_file:
+with open(path+'data.csv', 'w') as csv_file:
     writer = csv.writer(csv_file)
     writer.writerow(TextBlock.headers())
     for i in os.listdir(path):
