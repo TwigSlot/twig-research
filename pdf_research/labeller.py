@@ -59,9 +59,29 @@ while True:
         z: jump to latest
         e: expand text
         r: relabel
+        exec rel: calculate all relative properties
         """)
         input("press enter > ")
         continue
+    if(cmd[:4] == "exec"):
+        fn = cmd.replace("exec", "").strip()
+        print('executing',fn)
+        if(fn == "rel"):
+            for i in range(len(doc)-1):
+                doc[i+1].compare_prev(doc[i])
+            input("press enter > ")
+            continue
+        elif(fn == "fix"):
+            for i in doc:
+                if(isinstance(i.font_size, tuple)):
+                    i.fix_font()
+            input("press enter > ")
+            continue
+        elif(fn == "dbg"):
+            print('debug')
+            print(doc[tb_idx].font_size)
+            input("press enter > ")
+            continue
     if(cmd == "tree"):
         for i in range(len(doc)):
             if(doc[i].isHeader and doc[i].headerLevel != -1):

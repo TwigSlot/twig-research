@@ -40,25 +40,34 @@ class TextBlock:
     def compare_prev(self, prev):
         self.size_diff_prev = self.font_size - prev.font_size
         self.xdiff = self.x0 - prev.x0 # basically indentation
-        self.ydiff = self.height - prev.height
-    def properties(self):
+        if(self.page == prev.page):
+            self.ydiff = self.height - prev.height
+        else:
+            self.ydiff = None
+    def fix_font(self):
+        self.font_name = self.font_size[1]
+        self.font_size = self.font_size[0]
+    @classmethod
+    def headers(cls):
         return [
-            self.font_size,
-            self.fontname,
-            self.text,
-            self.has_fullstop,
-            self.text_length,
-            self.x0,
-            self.x1,
-            self.y0,
-            self.y1,
-            self.height,
-            self.size_diff_prev,
-            self.xdiff,
-            self.ydiff,
-            self.isHeader,
-            self.headerLevel
+            "font_size",
+            "fontname",
+            "text",
+            "has_fullstop",
+            "text_length",
+            "x0",
+            "x1",
+            "y0",
+            "y1",
+            "height",
+            "size_diff_prev",
+            "xdiff",
+            "ydiff",
+            "isHeader",
+            "headerLevel"
         ]
+    def properties(self):
+        return [getattr(self, attr) for attr in TextBlock.headers()]
     def drawRect(self, fitz_doc: fitz.Document):
         if(self.page == -1): return
         height = fitz_doc.load_page(self.page-1).rect[3]
@@ -88,21 +97,17 @@ def extract(PDF_file):
                         continue
                 # take the most common size and fontname
                 element_fonts_list = sorted(list(element_fonts.items()), key = lambda x : len(x[1]))
-                print(element.get_text())
-                for x in list(list(element)[0]):
-                    if(isinstance(x,LTChar)):
-                        print(x.fontname, x._text)
-                    else:
-                        print(x._text)
-                print("===")
-                doc.append(
-                    TextBlock(
-                        element_fonts_list[0],
-                        element,
-                        page = page_layout.pageid
+                if(len(element_fonts_list) > 0):
+                    doc.append(
+                        TextBlock(
+                            element_fonts_list[0][0],
+                            element,
+                            page = page_layout.pageid
+                        )
                     )
-                )
     # fitz_doc.save('pdf_research/test_pdfs/test.pdf')
+    for i in range(len(doc)-1):
+        doc[i+1].compare_prev(doc[i])
     return doc
 
 if __name__ == "__main__":
