@@ -175,3 +175,4 @@ pdf_research/test_pdfs/*
 twig_scraper/outputs/*
 .DS_STORE
 wandb
+arxiv_dataset
