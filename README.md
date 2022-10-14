@@ -1,5 +1,7 @@
-# twig-research
-Experimental crawler prototypes go here. 
+# Twig Research
+Research for [twigslot.com](https://twigslot.com)
+
+Experimental ML research, crawler prototypes, and anything that pushes the boundary of twigslot's cabilities go here. 
 
 ## Scraping
 To run the `wiki` spider,
