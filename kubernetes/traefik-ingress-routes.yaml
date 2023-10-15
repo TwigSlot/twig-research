@@ -1,7 +1,7 @@
 apiVersion: traefik.containo.us/v1alpha1
 kind: Middleware
 metadata:
-name: middleware-stripprefix-autofill
+  name: middleware-stripprefix-autofill
 spec:
   stripPrefix:
     prefixes:
@@ -11,12 +11,11 @@ apiVersion: traefik.containo.us/v1alpha1
 kind: IngressRoute
 metadata:
   name: autofill-ingress
-  namespace: default
 spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`twig.tchlabs.net`) && PathPrefix(`/autofill`)
+    - match: PathPrefix(`/autofill`)
       kind: Rule
       middlewares:
         - name: middleware-stripprefix-autofill
@@ -24,6 +23,6 @@ spec:
         - name: autofill-service
           port: 5000
   tls:
-    certResolver: myresolver
+    certResolver: acme-secret
     domains: 
-    - main: twig.tchlabs.net
+    - main: twigslot.com
